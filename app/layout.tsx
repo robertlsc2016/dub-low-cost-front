@@ -7,7 +7,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="ptbr"
+      lang="pt-BR"
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

@@ -14,6 +14,10 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [model, setModel] = useState<
+    "tiny" | "base" | "small" | "medium" | "large"
+  >("small");
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFile(file: File) {
@@ -49,11 +53,15 @@ export default function Home() {
 
       const formData = new FormData();
       formData.append("video", video);
+      formData.append("model", model);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Erro ao enviar vídeo");
@@ -76,9 +84,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center px-6 py-12">
-      <h2 className="text-green-400 font-bold text-xl mb-8">
-        Dub Low Cost
-      </h2>
+      <h2 className="text-green-400 font-bold text-xl mb-8">Dub Low Cost</h2>
 
       {/* HERO */}
       <section className="max-w-4xl text-center mb-12">
@@ -89,7 +95,8 @@ export default function Home() {
         </h1>
 
         <p className="mt-6 text-zinc-400 text-lg">
-          Faça upload do seu vídeo e gere uma versão dublada com IA em poucos minutos.
+          Faça upload do seu vídeo e gere uma versão dublada com IA em poucos
+          minutos.
         </p>
       </section>
 
@@ -155,6 +162,46 @@ export default function Home() {
           />
         </div>
 
+        {/* MODEL SELECT */}
+        <div className="mt-6 text-center">
+          <p className="text-zinc-400 mb-3">
+            Escolha o modelo de dublagem
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            {(["tiny", "base", "small", "medium", "large"] as const).map(
+              (m) => {
+                const disabled = m === "large";
+
+                return (
+                  <button
+                    key={m}
+                    onClick={() => {
+                      if (!disabled) setModel(m);
+                    }}
+                    disabled={disabled}
+                    className={`
+                      px-6 py-3 rounded-xl font-bold text-lg transition-all
+                      ${
+                        model === m
+                          ? "bg-green-500 text-black"
+                          : "bg-zinc-800 text-white"
+                      }
+                      ${
+                        disabled
+                          ? "opacity-40 cursor-not-allowed"
+                          : "hover:bg-zinc-700"
+                      }
+                    `}
+                  >
+                    {m.toUpperCase()}
+                  </button>
+                );
+              }
+            )}
+          </div>
+        </div>
+
         {/* BUTTON */}
         <button
           onClick={handleUpload}
@@ -187,7 +234,7 @@ export default function Home() {
         {status === "success" && result && (
           <div className="mt-8 p-6 bg-zinc-900 border border-green-500 rounded-2xl text-center">
             <h3 className="text-green-400 text-2xl font-bold mb-4">
-              ✅ Processamento concluído!
+              ✅ Processamento concluído! - {result?.time?.toFixed(2)} segundos
             </h3>
 
             <video

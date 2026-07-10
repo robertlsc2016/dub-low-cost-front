@@ -5,6 +5,10 @@
 > **Período:** 2026/1 (1º semestre)
 > **Disciplina:** Fundamentos da Computação
 
+<p align="center">
+  <img src="assets/preview.png" alt="Interface do Dub Low Cost" width="900">
+</p>
+
 Uma aplicação de **dublagem automática de vídeos utilizando Inteligência Artificial**, desenvolvida com foco em **baixo custo computacional**, **rapidez** e **boa qualidade de áudio**.
 
 O usuário envia um vídeo (de até **3 minutos**) em inglês e a aplicação realiza automaticamente todo o processo de transcrição, tradução, geração da voz em português e sincronização do novo áudio com o vídeo original, entregando ao final um vídeo completamente dublado.

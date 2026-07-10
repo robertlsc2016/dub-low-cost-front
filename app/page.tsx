@@ -20,16 +20,54 @@ export default function Home() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function handleFile(file: File) {
+  // 🔥 LIMITE 2:30 = 150s
+  const MAX_DURATION = 150;
+
+  function checkVideoDuration(file: File): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+
+        const duration = video.duration;
+
+        if (duration > MAX_DURATION) {
+          reject("Vídeo maior que 2 minutos e 30 segundos");
+        } else {
+          resolve(duration);
+        }
+      };
+
+      video.onerror = () => {
+        reject("Erro ao ler vídeo");
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  }
+
+  async function handleFile(file: File) {
     if (!file.type.startsWith("video/")) {
-      alert("Selecione um vídeo válido");
+      setError("Selecione um vídeo válido");
       return;
     }
 
-    setVideo(file);
-    setStatus("idle");
-    setResult(null);
-    setError(null);
+    try {
+      setError(null);
+      setStatus("idle");
+
+      await checkVideoDuration(file);
+
+      setVideo(file);
+      setResult(null);
+    } catch (err: any) {
+      setVideo(null);
+      setError(err);
+      setStatus("error");
+    }
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -95,8 +133,7 @@ export default function Home() {
         </h1>
 
         <p className="mt-6 text-zinc-400 text-lg">
-          Faça upload do seu vídeo e gere uma versão dublada com IA em poucos
-          minutos.
+          Faça upload do seu vídeo e gere uma versão dublada com IA em poucos minutos.
         </p>
       </section>
 
@@ -162,6 +199,13 @@ export default function Home() {
           />
         </div>
 
+        {/* ERROR */}
+        {error && status === "error" && (
+          <div className="mt-4 text-red-400 text-center">
+            ❌ {error}
+          </div>
+        )}
+
         {/* MODEL SELECT */}
         <div className="mt-6 text-center">
           <p className="text-zinc-400 mb-3">
@@ -224,13 +268,6 @@ export default function Home() {
           </div>
         )}
 
-        {status === "error" && (
-          <div className="mt-6 text-red-400 text-center">
-            ❌ Erro: {error}
-          </div>
-        )}
-
-        {/* SUCCESS */}
         {status === "success" && result && (
           <div className="mt-8 p-6 bg-zinc-900 border border-green-500 rounded-2xl text-center">
             <h3 className="text-green-400 text-2xl font-bold mb-4">
